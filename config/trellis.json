@@ -1,0 +1,40 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.6/schema.json",
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "nursery": {
+        "noImpliedEval": "warn"
+      }
+    }
+  },
+  "plugins": [
+    {
+      "path": "./node_modules/@raintree-technology/trellis/plugins/rt006-no-insecure-tls-env.grit",
+      "includes": [
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.mjs",
+        "**/*.cjs",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.mts",
+        "**/*.cts"
+      ]
+    },
+    {
+      "path": "./node_modules/@raintree-technology/trellis/plugins/rt006-no-reject-unauthorized-false.grit",
+      "includes": [
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.mjs",
+        "**/*.cjs",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.mts",
+        "**/*.cts"
+      ]
+    }
+  ]
+}

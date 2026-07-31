@@ -1,0 +1,43 @@
+{
+  "$schema": "../node_modules/@biomejs/biome/configuration_schema.json",
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "none",
+      "nursery": {
+        "noImpliedEval": "warn"
+      },
+      "security": {
+        "noGlobalEval": "error"
+      }
+    }
+  },
+  "plugins": [
+    {
+      "path": "../plugins/rt006-no-insecure-tls-env.grit",
+      "includes": [
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.mjs",
+        "**/*.cjs",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.mts",
+        "**/*.cts"
+      ]
+    },
+    {
+      "path": "../plugins/rt006-no-reject-unauthorized-false.grit",
+      "includes": [
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.mjs",
+        "**/*.cjs",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.mts",
+        "**/*.cts"
+      ]
+    }
+  ]
+}

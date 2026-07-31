@@ -1,0 +1,13 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+or {
+  JsPropertyObjectMember() as $match where {
+    $match <: r"^(?:rejectUnauthorized|[\"']rejectUnauthorized[\"'])\s*:\s*false$"
+  },
+  `$object.rejectUnauthorized = false` as $match,
+  `$object["rejectUnauthorized"] = false` as $match,
+  `$object['rejectUnauthorized'] = false` as $match
+} where {
+  register_diagnostic(span=$match, message="RT006: TLS certificate verification must remain enabled. Fix the trust store or certificate chain instead.", severity="error")
+}
