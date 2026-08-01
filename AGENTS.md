@@ -34,6 +34,6 @@ Trellis is Raintree Technology's executable code-policy package.
 ## Commands
 
 - `bun run check` validates Trellis without changing files.
-- `bun run check:fixtures` confirms every RT006 form produces the expected diagnostic.
+- `bun run check:fixtures` confirms every custom rule reports and allows its documented forms.
 - `bun run check:write` applies Biome's safe formatting and fixes.
 - `bun run package:check` shows the exact npm package contents without publishing.

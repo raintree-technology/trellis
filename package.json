@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "check": "biome check .",
-    "check:fixtures": "bun test tests/rt006.test.ts",
+    "check:fixtures": "bun test tests",
     "check:write": "biome check . --write",
     "package:check": "npm pack --dry-run",
     "prepublishOnly": "bun run check && bun run check:fixtures && bun run package:check"

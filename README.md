@@ -1,11 +1,11 @@
 # Trellis
 
-Trellis is Raintree Technology's executable code-policy package. It makes
-shared engineering constraints visible in editors, local validation, and CI.
+Trellis is Raintree Technology's small, strict Biome preset. It rejects obvious
+code slop, security footguns, and avoidable inconsistency in editors, local
+validation, and CI.
 
-Trellis uses Biome for JavaScript, TypeScript, CSS, and JSON. It does not
-replace repository-specific architecture checks, Ruff, mypy, HIG Doctor,
-Semgrep, type checking, or runtime verification.
+Trellis does not encode product architecture. Repository-specific rules and
+exceptions stay in the repository that owns them.
 
 ## Package surface
 
@@ -70,18 +70,11 @@ Prefer a narrow inline suppression:
 const evaluator = new Function(source);
 ```
 
-## Rule lifecycle
+## Adding a rule
 
-```text
-candidate → examples → one-repository audit → all-repository audit → warning
-          → remediation → error → measurement → retirement
-```
-
-A rule does not become blocking until it has a clear replacement, its current
-findings are triaged, and its configured scope has no known false positives.
+A shared rule belongs in Trellis only when it is objective, useful in more than
+one repository, and has one clear replacement. Prefer a built-in Biome rule.
+Keep rules with product-specific exceptions in the product repository.
 
 See [RT005](./docs/rules/RT005.md) and [RT006](./docs/rules/RT006.md) for the
 current catalog.
-
-The expanded audit found no RT005 or RT006 violations in 3,140 Git-tracked
-JavaScript and TypeScript files across the seven intended repository roots.
