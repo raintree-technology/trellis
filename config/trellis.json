@@ -4,8 +4,43 @@
     "enabled": true,
     "rules": {
       "preset": "recommended",
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "warn",
+          "options": {
+            "maxAllowedComplexity": 25
+          }
+        },
+        "noExcessiveLinesPerFunction": {
+          "level": "warn",
+          "options": {
+            "maxLines": 150,
+            "skipBlankLines": true
+          }
+        },
+        "useMaxParams": {
+          "level": "warn",
+          "options": {
+            "max": 5
+          }
+        }
+      },
       "nursery": {
         "noImpliedEval": "warn"
+      },
+      "style": {
+        "noExcessiveLinesPerFile": {
+          "level": "warn",
+          "options": {
+            "maxLines": 500,
+            "skipBlankLines": true
+          }
+        },
+        "noNonNullAssertion": "warn",
+        "noParameterAssign": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "error"
       }
     }
   },

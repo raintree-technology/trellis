@@ -1,7 +1,7 @@
 {
   "name": "@raintree-technology/trellis",
-  "version": "0.1.0",
-  "description": "Executable code policy for Raintree Technology projects",
+  "version": "0.2.0",
+  "description": "Anti-slop Biome policy for Raintree Technology projects",
   "author": "Raintree Technology",
   "license": "MIT",
   "keywords": [
@@ -11,11 +11,15 @@
     "lint",
     "policy"
   ],
+  "bin": {
+    "trellis": "./bin/trellis.mjs"
+  },
   "exports": {
     "./biome": "./config/trellis.json",
     "./package.json": "./package.json"
   },
   "files": [
+    "bin",
     "config",
     "docs/rules",
     "plugins",
