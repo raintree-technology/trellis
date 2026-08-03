@@ -16,7 +16,7 @@ describe("RT006 plugins", () => {
     const output = `${result.stdout}${result.stderr}`;
 
     expect(result.status).toBe(1);
-    expect(output.match(/RT006:/g)).toHaveLength(6);
+    expect(output.match(/RT006:/g)).toHaveLength(9);
   });
 
   test("allow secure TLS settings", () => {

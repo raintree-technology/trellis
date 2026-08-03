@@ -7,7 +7,7 @@ import { join, resolve } from "node:path";
 const cli = resolve(import.meta.dir, "../bin/trellis.mjs");
 const temporaryDirectories: string[] = [];
 
-function makeFakeBiome() {
+function makeFakeBiome(lineOffset = 0, objectPath = false) {
   const directory = mkdtempSync(join(tmpdir(), "trellis-cli-"));
   temporaryDirectories.push(directory);
   const biome = join(directory, "biome.mjs");
@@ -15,25 +15,37 @@ function makeFakeBiome() {
     {
       category: "lint/style/noNonNullAssertion",
       severity: "warning",
-      location: { path: "src/b.ts", start: { line: 8, column: 4 } },
+      location: {
+        path: objectPath ? { file: "src/b.ts" } : "src/b.ts",
+        start: { line: 8 + lineOffset, column: 4 },
+      },
       message: "Forbidden non-null assertion.",
     },
     {
       category: "lint/suspicious/noExplicitAny",
       severity: "error",
-      location: { path: "src/a.ts", start: { line: 2, column: 10 } },
+      location: {
+        path: objectPath ? { file: "src/a.ts" } : "src/a.ts",
+        start: { line: 2 + lineOffset, column: 10 },
+      },
       message: "Unexpected any.",
     },
     {
       category: "lint/a11y/useButtonType",
       severity: "error",
-      location: { path: "src/c.tsx", start: { line: 3, column: 1 } },
+      location: {
+        path: objectPath ? { file: "src/c.tsx" } : "src/c.tsx",
+        start: { line: 3 + lineOffset, column: 1 },
+      },
       message: "Provide an explicit button type.",
     },
     {
       category: "plugin",
       severity: "error",
-      location: { path: "src/tls.ts", start: { line: 5, column: 2 } },
+      location: {
+        path: objectPath ? { file: "src/tls.ts" } : "src/tls.ts",
+        start: { line: 5 + lineOffset, column: 2 },
+      },
       message: "RT006: Do not disable TLS certificate verification.",
     },
   ];
@@ -104,5 +116,40 @@ describe("trellis todo", () => {
     expect(allReport.todos.some((todo: { rule: string }) => todo.rule === "useButtonType")).toBe(
       true,
     );
+  });
+
+  test("keeps IDs when source lines move and accepts object-shaped paths", () => {
+    const firstBiome = makeFakeBiome();
+    const movedBiome = makeFakeBiome(20, true);
+    const first = JSON.parse(run(["todo"], firstBiome.biome, firstBiome.directory).stdout);
+    const moved = JSON.parse(run(["todo"], movedBiome.biome, movedBiome.directory).stdout);
+
+    expect(moved.todos.map((todo: { id: string }) => todo.id)).toEqual(
+      first.todos.map((todo: { id: string }) => todo.id),
+    );
+    expect(moved.todos.map((todo: { file: string }) => todo.file)).toEqual([
+      "src/a.ts",
+      "src/tls.ts",
+      "src/b.ts",
+    ]);
+  });
+
+  test("parses the pinned Biome JSON reporter end to end", () => {
+    const repositoryRoot = resolve(import.meta.dir, "..");
+    const result = run(
+      ["todo", "--config-path=tests/fixture-config.json", "tests/fixtures/rt006-invalid.mts"],
+      undefined,
+      repositoryRoot,
+    );
+
+    expect(result.status).toBe(0);
+    const report = JSON.parse(result.stdout);
+    expect(report.summary).toEqual({ total: 9, errors: 9, warnings: 0, infos: 0 });
+    expect(report.todos.every((todo: { rule: string }) => todo.rule === "RT006")).toBe(true);
+    expect(report.todos[0]).toMatchObject({
+      file: "tests/fixtures/rt006-invalid.mts",
+      line: 1,
+      column: 1,
+    });
   });
 });

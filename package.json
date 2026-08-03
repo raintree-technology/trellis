@@ -1,6 +1,6 @@
 {
   "name": "@raintree-technology/trellis",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Anti-slop Biome policy for Raintree Technology projects",
   "author": "Raintree Technology",
   "license": "MIT",
@@ -31,7 +31,8 @@
     "check:fixtures": "bun test tests",
     "check:write": "biome check . --write",
     "package:check": "npm pack --dry-run",
-    "prepublishOnly": "bun run check && bun run check:fixtures && bun run package:check"
+    "prepublishOnly": "bun run check && bun run check:fixtures && bun run package:check",
+    "trellis": "bun bin/trellis.mjs"
   },
   "peerDependencies": {
     "@biomejs/biome": "2.5.6"

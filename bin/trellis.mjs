@@ -5,33 +5,7 @@ import { createHash } from "node:crypto";
 import { existsSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, parse, resolve } from "node:path";
-
-const TRELLIS_CATEGORIES = new Set([
-  "lint/complexity/noExcessiveCognitiveComplexity",
-  "lint/complexity/noExcessiveLinesPerFunction",
-  "lint/complexity/useMaxParams",
-  "lint/nursery/noImpliedEval",
-  "lint/security/noGlobalEval",
-  "lint/style/noExcessiveLinesPerFile",
-  "lint/style/noNonNullAssertion",
-  "lint/style/noParameterAssign",
-  "lint/suspicious/noExplicitAny",
-]);
-
-const REPLACEMENTS = {
-  "lint/complexity/noExcessiveCognitiveComplexity":
-    "Split branches into small named functions with one responsibility.",
-  "lint/complexity/noExcessiveLinesPerFunction":
-    "Extract cohesive work into small named functions.",
-  "lint/complexity/useMaxParams": "Group related parameters in a typed options object.",
-  "lint/nursery/noImpliedEval": "Use a parser, declarative data, or a constrained interpreter.",
-  "lint/security/noGlobalEval": "Use a parser, declarative data, or a constrained interpreter.",
-  "lint/style/noExcessiveLinesPerFile": "Split the file along clear responsibility boundaries.",
-  "lint/style/noNonNullAssertion": "Narrow or validate the value before using it.",
-  "lint/style/noParameterAssign": "Copy the parameter into a local variable before changing it.",
-  "lint/suspicious/noExplicitAny": "Use a concrete type or unknown and narrow it before use.",
-  RT006: "Fix the certificate chain, hostname, or trust-store configuration.",
-};
+import { REPLACEMENTS, TRELLIS_CATEGORIES, TRELLIS_PLUGIN_RULES } from "./trellis-policy.mjs";
 
 function usage() {
   return `Usage: trellis todo [paths...] [--output <file>] [--all]
@@ -139,26 +113,47 @@ function findBiome(cwd) {
 function isTrellisDiagnostic(diagnostic) {
   return (
     TRELLIS_CATEGORIES.has(diagnostic.category) ||
-    (diagnostic.category === "plugin" && diagnostic.message.startsWith("RT006:"))
+    (diagnostic.category === "plugin" && pluginRule(diagnostic) !== null)
+  );
+}
+
+function pluginRule(diagnostic) {
+  return (
+    TRELLIS_PLUGIN_RULES.find(({ messagePrefix }) => diagnostic.message.startsWith(messagePrefix))
+      ?.rule ?? null
   );
 }
 
 function ruleName(diagnostic) {
-  if (diagnostic.category === "plugin" && diagnostic.message.startsWith("RT006:")) {
-    return "RT006";
+  if (diagnostic.category === "plugin") {
+    return pluginRule(diagnostic) ?? "plugin";
   }
   return diagnostic.category.split("/").at(-1);
 }
 
-function todoFromDiagnostic(diagnostic) {
+function diagnosticPath(path) {
+  if (typeof path === "string") {
+    return path;
+  }
+  if (!path || typeof path !== "object") {
+    return null;
+  }
+
+  for (const key of ["path", "file", "value", "display"]) {
+    if (typeof path[key] === "string") {
+      return path[key];
+    }
+  }
+  return null;
+}
+
+function todoFromDiagnostic(diagnostic, occurrence) {
   const rule = ruleName(diagnostic);
-  const file = diagnostic.location?.path ?? null;
+  const file = diagnosticPath(diagnostic.location?.path);
   const line = diagnostic.location?.start?.line ?? null;
   const column = diagnostic.location?.start?.column ?? null;
   const fingerprint = createHash("sha256")
-    .update(
-      `${diagnostic.category}\0${file ?? ""}\0${line ?? ""}\0${column ?? ""}\0${diagnostic.message}`,
-    )
+    .update(`${diagnostic.category}\0${file ?? ""}\0${diagnostic.message}\0${occurrence}`)
     .digest("hex")
     .slice(0, 16);
 
@@ -181,9 +176,16 @@ function severityRank(severity) {
 }
 
 function buildReport(biomeReport, includeAll) {
+  const occurrences = new Map();
   const todos = biomeReport.diagnostics
     .filter((diagnostic) => includeAll || isTrellisDiagnostic(diagnostic))
-    .map(todoFromDiagnostic)
+    .map((diagnostic) => {
+      const file = diagnosticPath(diagnostic.location?.path) ?? "";
+      const key = `${diagnostic.category}\0${file}\0${diagnostic.message}`;
+      const occurrence = occurrences.get(key) ?? 0;
+      occurrences.set(key, occurrence + 1);
+      return todoFromDiagnostic(diagnostic, occurrence);
+    })
     .sort(
       (left, right) =>
         severityRank(left.severity) - severityRank(right.severity) ||

@@ -25,5 +25,7 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Check source and configuration
         run: bun run check
+      - name: Check policy fixtures and CLI
+        run: bun run check:fixtures
       - name: Inspect package contents
         run: bun run package:check

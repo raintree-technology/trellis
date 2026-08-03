@@ -2,9 +2,9 @@
 
 Trellis turns Raintree Technology's shared engineering standards into a small,
 strict Biome preset. It catches correctness mistakes, risky shortcuts, security
-footguns, and structural debt in editors and CI. It can also export
-active findings as deterministic JSON todo lists with stable IDs and approved
-replacements.
+footguns, and structural debt in editors and CI. It can also export active
+findings as deterministic JSON todo lists with durable IDs and approved
+replacements for coding-agent handoffs.
 
 Shared rules stay objective and useful across repositories. Product
 architecture, framework constraints, and justified exceptions stay in the
@@ -12,11 +12,15 @@ repository that owns them.
 
 ## Package surface
 
-Trellis exports one Biome configuration:
+Trellis exports a Biome configuration for enforcement:
 
 ```text
 @raintree-technology/trellis/biome
 ```
+
+It also exposes `trellis todo`, a reporting command that turns active Biome
+findings into agent-readable JSON. The command does not replace or wrap the
+repository's blocking Biome command.
 
 Product-specific accessibility, framework, architecture, and file-scope
 settings stay in each repository.
@@ -26,7 +30,7 @@ settings stay in each repository.
 Install exact versions at the consumer repository root:
 
 ```sh
-bun add --dev --exact @raintree-technology/trellis@0.2.0 @biomejs/biome@2.5.6
+bun add --dev --exact @raintree-technology/trellis@0.3.0 @biomejs/biome@2.5.6
 ```
 
 At the consumer repository root, create a small `biome.json`:
@@ -42,6 +46,10 @@ The consumer keeps its own file scope, framework rules, import boundaries, and
 other local settings. Do not copy Trellis configuration or plugins into the
 consumer.
 
+The shared plugin paths assume a physical `node_modules` directory at the
+consumer root. Yarn Plug'n'Play without a physical root `node_modules` install
+is not supported.
+
 No Trellis command is required. The repository's existing `biome lint` or
 `biome check` command automatically includes the shared rules.
 
@@ -55,11 +63,15 @@ bun run trellis todo
 bun run trellis todo --output trellis-todo.json
 ```
 
-The default report contains only Trellis findings. Use `--all` to include every
-diagnostic from the repository's Biome configuration, including local rules.
-Each todo includes a stable ID, severity, rule, source location, diagnostic,
-and approved replacement. Generating a report succeeds even when it contains
-error-level todos; repository lint remains the blocking command.
+The report is a handoff format for coding agents and reviewers: policy remains
+the enforcement layer, while the JSON list makes the active work explicit and
+diffable. The default report contains only Trellis findings. Use `--all` to
+include every diagnostic from the repository's Biome configuration, including
+local rules. Each todo includes a durable ID, severity, rule, source location,
+diagnostic, and approved replacement. IDs are based on the file, category,
+message, and same-message occurrence, so unrelated line movement does not
+change them. Generating a report succeeds even when it contains error-level
+todos; repository lint remains the blocking command.
 
 In a monorepo, declare both packages in the root `package.json`. Keep the
 package export in the root Biome configuration. Nested configurations inherit

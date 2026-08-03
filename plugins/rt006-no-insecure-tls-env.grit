@@ -3,7 +3,14 @@ language js(typescript, jsx)
 
 or {
   `process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"` as $match,
-  `process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'` as $match
+  `process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'` as $match,
+  `process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0` as $match,
+  `process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"` as $match,
+  `process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = '0'` as $match,
+  `process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0` as $match,
+  `process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = "0"` as $match,
+  `process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'` as $match,
+  `process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0` as $match
 } where {
   register_diagnostic(span=$match, message="RT006: TLS certificate verification must remain enabled. Fix the trust store or certificate chain instead.", severity="error")
 }
