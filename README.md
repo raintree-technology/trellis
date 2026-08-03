@@ -1,11 +1,14 @@
 # Trellis
 
-Trellis is Raintree Technology's small, strict Biome preset. It rejects obvious
-code slop, security footguns, and avoidable inconsistency in editors, local
-validation, and CI.
+Trellis turns Raintree Technology's shared engineering standards into a small,
+strict Biome preset. It catches correctness mistakes, risky shortcuts, security
+footguns, and structural debt in editors and CI. It can also export
+active findings as deterministic JSON todo lists with stable IDs and approved
+replacements.
 
-Trellis does not encode product architecture. Repository-specific rules and
-exceptions stay in the repository that owns them.
+Shared rules stay objective and useful across repositories. Product
+architecture, framework constraints, and justified exceptions stay in the
+repository that owns them.
 
 ## Package surface
 
