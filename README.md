@@ -1,39 +1,22 @@
 # Trellis
 
-Trellis turns Raintree Technology's shared engineering standards into a small,
-strict Biome preset. It catches correctness mistakes, risky shortcuts, security
-footguns, and structural debt in editors and CI. It can also export active
-findings as deterministic JSON todo lists with durable IDs and approved
-replacements for coding-agent handoffs.
+<!-- project-record: trellis -->
 
-Shared rules stay objective and useful across repositories. Product
-architecture, framework constraints, and justified exceptions stay in the
-repository that owns them.
+**Active open-source package · MIT License**
 
-## Package surface
+Trellis gives JavaScript and TypeScript teams one strict Biome policy for repeatable
+correctness, security, and maintainability checks. It also turns active findings into
+deterministic JSON todos that coding agents can implement and reviewers can diff.
 
-Trellis exports a Biome configuration for enforcement:
+## Install Trellis
 
-```text
-@raintree-technology/trellis/biome
-```
+Install exact package and peer-dependency versions at the consumer repository root:
 
-It also exposes `trellis todo`, a reporting command that turns active Biome
-findings into agent-readable JSON. The command does not replace or wrap the
-repository's blocking Biome command.
-
-Product-specific accessibility, framework, architecture, and file-scope
-settings stay in each repository.
-
-## Install
-
-Install exact versions at the consumer repository root:
-
-```sh
+```bash
 bun add --dev --exact @raintree-technology/trellis@0.3.0 @biomejs/biome@2.5.6
 ```
 
-At the consumer repository root, create a small `biome.json`:
+Create `biome.json`:
 
 ```json
 {
@@ -42,84 +25,108 @@ At the consumer repository root, create a small `biome.json`:
 }
 ```
 
-The consumer keeps its own file scope, framework rules, import boundaries, and
-other local settings. Do not copy Trellis configuration or plugins into the
-consumer.
+The repository’s existing `biome check` command now enforces the shared policy. No
+Trellis wrapper is required.
 
-The shared plugin paths assume a physical `node_modules` directory at the
-consumer root. Yarn Plug'n'Play without a physical root `node_modules` install
-is not supported.
+## See the policy handoff
 
-No Trellis command is required. The repository's existing `biome lint` or
-`biome check` command automatically includes the shared rules.
+Given a risky shortcut:
 
-## JSON todo report
+```ts
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+```
 
-Run Trellis from a consumer repository to turn its active policy findings into
-a deterministic JSON todo list:
+Biome reports the blocking rule with its reason and replacement direction:
 
-```sh
-bun run trellis todo
+```text
+readme-proof.ts:1:1 plugin
+
+  × RT006: TLS certificate verification must remain enabled.
+    Fix the trust store or certificate chain instead.
+
+  > 1 │ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+This capture is checked against the pinned Biome version and the RT006 fixture in the
+test suite. Trellis can also produce an agent-readable todo:
+
+```bash
 bun run trellis todo --output trellis-todo.json
 ```
 
-The report is a handoff format for coding agents and reviewers: policy remains
-the enforcement layer, while the JSON list makes the active work explicit and
-diffable. The default report contains only Trellis findings. Use `--all` to
-include every diagnostic from the repository's Biome configuration, including
-local rules. Each todo includes a durable ID, severity, rule, source location,
-diagnostic, and approved replacement. IDs are based on the file, category,
-message, and same-message occurrence, so unrelated line movement does not
-change them. Generating a report succeeds even when it contains error-level
-todos; repository lint remains the blocking command.
-
-In a monorepo, declare both packages in the root `package.json`. Keep the
-package export in the root Biome configuration. Nested configurations inherit
-from the root so plugin paths continue to resolve from one place:
-
 ```json
 {
-  "root": false,
-  "extends": ["//"]
+  "id": "trellis-<stable-fingerprint>",
+  "status": "open",
+  "severity": "error",
+  "rule": "RT006",
+  "message": "Do not disable TLS certificate verification.",
+  "replacement": "Use a trusted CA or a scoped test transport."
 }
 ```
 
-Trellis covers `.js`, `.jsx`, `.mjs`, `.cjs`, `.ts`, `.tsx`, `.mts`, and
-`.cts` files. Consumers still own generated-file exclusions and source scope.
+The JSON report is a handoff artifact, not a second policy engine. Report generation
+succeeds when error-level todos exist; the repository’s Biome check remains the gate.
 
-## Current rules
+## Why use Trellis
 
-| Policy | Implementation | Status |
+- **Share objective policy.** Keep repeatable rules consistent across repositories.
+- **Keep exceptions local.** Product architecture, framework rules, and justified
+  suppressions stay with the repository that owns them.
+- **Give agents stable work.** Todo IDs derive from the file, category, message, and
+  same-message occurrence, so unrelated line movement does not rewrite the list.
+- **Prefer clear replacements.** Shared rules belong here only when they identify an
+  objective problem with an actionable alternative.
+
+## Current policy
+
+| Policy | Implementation | Gate |
 | --- | --- | --- |
-| Reject common correctness mistakes | Biome recommended rules | Biome defaults |
-| Reject type-system escape | Biome `noExplicitAny` | Error |
-| Reject parameter reassignment | Biome `noParameterAssign` | Error |
-| Flag hard-to-follow functions | Cognitive complexity above 25 | Warning |
-| Flag oversized functions | More than 150 nonblank lines per function | Warning |
-| Flag oversized files | More than 500 nonblank lines per file | Warning |
-| Flag overloaded signatures | More than 5 parameters | Warning |
-| Flag unchecked assumptions | Biome `noNonNullAssertion` | Warning |
-| RT005: no dynamic execution | Biome `noGlobalEval` and `noImpliedEval` | Error and audit warning |
-| RT006: do not disable TLS verification | Two Trellis GritQL plugins | Error |
+| Common correctness mistakes | Biome recommended rules | Biome defaults |
+| Type-system escape | `noExplicitAny` | Error |
+| Parameter reassignment | `noParameterAssign` | Error |
+| Dynamic execution | `noGlobalEval` and `noImpliedEval` | Error and audit warning |
+| Disabled TLS verification | Trellis GritQL plugins | Error |
+| Complexity above 25 | Biome cognitive complexity | Warning |
+| Functions over 150 nonblank lines | Trellis policy | Warning |
+| Files over 500 nonblank lines | Trellis policy | Warning |
+| More than five parameters | Trellis policy | Warning |
+| Non-null assertions | `noNonNullAssertion` | Warning |
 
-Errors cover shortcuts with a direct replacement: use a concrete type or
-`unknown`, and copy a parameter into a local variable before changing it.
-Warnings identify structural debt that needs human judgment before refactoring.
-Trellis does not ban console output, nested ternaries, comments, UI patterns,
-or other context-dependent choices.
+Warnings identify structural debt that needs human judgment. Trellis does not ban
+console output, nested ternaries, comments, UI patterns, or other context-dependent
+choices. The rule rationale lives in [`docs/rules/`](docs/rules/).
 
-Prefer a narrow inline suppression:
+## Compatibility and boundaries
+
+Trellis covers `.js`, `.jsx`, `.mjs`, `.cjs`, `.ts`, `.tsx`, `.mts`, and `.cts`.
+Consumers own generated-file exclusions, source scope, framework rules, import
+boundaries, and architecture checks.
+
+Plugin paths require a physical root `node_modules` directory. Yarn Plug’n’Play
+without one is not supported. In a monorepo, install both packages at the root and let
+nested Biome configurations extend `//`.
+
+Use narrow suppressions with a reason when a reviewed exception is necessary:
 
 ```ts
 // biome-ignore lint/nursery/noImpliedEval: Required by the reviewed sandbox protocol.
 const evaluator = new Function(source);
 ```
 
-## Adding a rule
+## Raintree open-source system
 
-A shared rule belongs in Trellis only when it is objective, useful in more than
-one repository, and has one clear replacement. Prefer a built-in Biome rule.
-Keep rules with product-specific exceptions in the product repository.
+Trellis owns shared JavaScript and TypeScript code policy. It can be used independently.
+[Raintree Standards](https://github.com/raintree-technology/raintree.standards) defines
+governed requirements, [DocPull](https://github.com/raintree-technology/docpull)
+acquires evidence, [HIG Doctor](https://github.com/raintree-technology/hig-doctor)
+audits interfaces, and [PolicyStrata](https://github.com/raintree-technology/policystrata)
+tests cross-layer policy behavior. See the
+[Raintree open-source portfolio](https://raintree.technology/portfolio#open-source).
 
-See [RT005](./docs/rules/RT005.md) and [RT006](./docs/rules/RT006.md) for the
-current catalog.
+## Project policies
+
+[npm package](https://www.npmjs.com/package/@raintree-technology/trellis) ·
+[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) ·
+[Source repository](https://github.com/raintree-technology/trellis) · [MIT License](LICENSE)
