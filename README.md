@@ -128,5 +128,6 @@ tests cross-layer policy behavior. See the
 ## Project policies
 
 [npm package](https://www.npmjs.com/package/@raintree-technology/trellis) ·
-[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) ·
+[Contributing](CONTRIBUTING.md) · [Code of Conduct](CODE_OF_CONDUCT.md) ·
+[Security](SECURITY.md) · [Changelog](CHANGELOG.md) ·
 [Source repository](https://github.com/raintree-technology/trellis) · [MIT License](LICENSE)
