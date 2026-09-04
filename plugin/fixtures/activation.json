@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "skill": "trellis-remediate",
+  "positive": [
+    "Remediate the next Trellis rule group in this repository.",
+    "Triage these trellis todo errors and fix one group."
+  ],
+  "negative": ["Run ESLint and fix everything.", "Install a formatter in this new project."]
+}

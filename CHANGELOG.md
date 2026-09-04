@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1
+
+- Added a Codex remediation skill that consumes the existing `trellis todo`
+  schema, processes one rule group at a time, preserves justified suppressions,
+  and reruns repository checks after edits.
+- Kept the version 1 JSON schema unchanged.
+
 ## 0.3.0
 
 - Added deterministic JSON todo reports for coding-agent handoffs.

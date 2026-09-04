@@ -13,7 +13,7 @@ deterministic JSON todos that coding agents can implement and reviewers can diff
 Install exact package and peer-dependency versions at the consumer repository root:
 
 ```bash
-bun add --dev --exact @raintree-technology/trellis@0.3.0 @biomejs/biome@2.5.6
+bun add --dev --exact @raintree-technology/trellis@0.3.1 @biomejs/biome@2.5.6
 ```
 
 Create `biome.json`:
@@ -113,6 +113,14 @@ Use narrow suppressions with a reason when a reviewed exception is necessary:
 ```ts
 // biome-ignore lint/nursery/noImpliedEval: Required by the reviewed sandbox protocol.
 const evaluator = new Function(source);
+```
+
+Codex users can install the remediation workflow from the public Raintree
+marketplace:
+
+```bash
+codex plugin marketplace add raintree-technology/plugins
+codex plugin add trellis@raintree
 ```
 
 ## Raintree open-source system
