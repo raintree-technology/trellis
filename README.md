@@ -13,7 +13,7 @@ deterministic JSON todos that coding agents can implement and reviewers can diff
 Install exact package and peer-dependency versions at the consumer repository root:
 
 ```bash
-bun add --dev --exact @raintree-technology/trellis@0.3.1 @biomejs/biome@2.5.6
+bun add --dev --exact @raintree-technology/trellis@0.3.2 @biomejs/biome@2.5.14
 ```
 
 Create `biome.json`:
