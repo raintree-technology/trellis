@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2
+
+- Raised the exact Biome peer dependency from 2.5.6 to 2.5.14.
+- Kept every rule, severity, and plugin unchanged.
+
 ## 0.3.1
 
 - Added a Codex remediation skill that consumes the existing `trellis todo`
