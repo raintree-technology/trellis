@@ -115,13 +115,9 @@ Use narrow suppressions with a reason when a reviewed exception is necessary:
 const evaluator = new Function(source);
 ```
 
-Codex users can install the remediation workflow from the public Raintree
-marketplace:
-
-```bash
-codex plugin marketplace add raintree-technology/plugins
-codex plugin add trellis@raintree
-```
+For agent-assisted remediation, use the [product-owned workflow](plugin/README.md)
+with the installed package's `trellis todo` report. The shared Codex marketplace
+was retired on October 10, 2026.
 
 ## Raintree open-source system
 
