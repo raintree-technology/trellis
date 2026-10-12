@@ -116,8 +116,7 @@ const evaluator = new Function(source);
 ```
 
 For agent-assisted remediation, use the [product-owned workflow](plugin/README.md)
-with the installed package's `trellis todo` report. The shared Codex marketplace
-was retired on October 10, 2026.
+with the installed package's `trellis todo` report.
 
 ## Raintree open-source system
 
@@ -128,6 +127,9 @@ acquires evidence, [HIG Doctor](https://github.com/raintree-technology/hig-docto
 audits interfaces, and [PolicyStrata](https://github.com/raintree-technology/policystrata)
 tests cross-layer policy behavior. See the
 [Raintree open-source portfolio](https://raintree.technology/portfolio#open-source).
+
+Raintree also builds [BetterOff](https://betteroff.finance), which keeps a household's
+spending, investments, assets, debts, and net worth in one current record.
 
 ## Project policies
 
